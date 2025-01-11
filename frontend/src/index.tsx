@@ -5,6 +5,7 @@ import { initializeIcons } from '@fluentui/react'
 
 import Chat from './pages/chat/Chat'
 import Layout from './pages/layout/Layout'
+import Input from './pages/input/Input'
 import NoPage from './pages/NoPage'
 import { AppStateProvider } from './state/AppProvider'
 

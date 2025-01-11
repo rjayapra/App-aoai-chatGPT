@@ -1,0 +1,16 @@
+.label-container {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  text-decoration: none;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 24px;
+  display: flex;
+  align-items: flex-end;
+  color: #242424;    
+}

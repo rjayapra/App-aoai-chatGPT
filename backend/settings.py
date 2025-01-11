@@ -7,7 +7,8 @@ from pydantic import (
     confloat,
     conint,
     conlist,
-    Field,
+    Field, 
+    validator,
     field_validator,
     model_validator,
     PrivateAttr,
@@ -41,16 +42,18 @@ class _UiSettings(BaseSettings):
         env_ignore_empty=True
     )
 
-    title: str = "Contoso"
+    title: str = "NTG"
     logo: Optional[str] = None
     chat_logo: Optional[str] = None
-    chat_title: str = "Start chatting"
-    chat_description: str = "This chatbot is configured to answer your questions"
+    chat_title: str = "Insights"
+    chat_description: str = "Chat with Generative AI"
+    chat_welcome_message: str = "Welcome to the Insights Chat App!"
     favicon: str = "/favicon.ico"
     show_share_button: bool = True
     show_chat_history_button: bool = True
-
-
+    index_items: str = "QSPs,FAQ,Others"
+    system_message: str = "You are an AI assistant that helps people find information."   
+            
 class _ChatHistorySettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="AZURE_COSMOSDB_",
@@ -206,6 +209,7 @@ class _SearchCommonSettings(BaseSettings):
     )
     max_search_queries: Optional[int] = None
     allow_partial_result: bool = False
+    endpoint: Optional[str] = None
     include_contexts: Optional[List[str]] = ["citations", "intent"]
     vectorization_dimensions: Optional[int] = None
     role_information: str = Field(
@@ -220,7 +224,12 @@ class _SearchCommonSettings(BaseSettings):
             return parse_multi_columns(comma_separated_string)
         
         return cls.model_fields[info.field_name].get_default()
-
+    
+    @model_validator(mode="after")
+    def ensure_endpoint(self) -> Self:
+        if self.endpoint:
+            return Self
+        raise ValidationError("SEARCH_ENDPOINT is required")
 
 class DatasourcePayloadConstructor(BaseModel, ABC):
     _settings: '_AppSettings' = PrivateAttr()

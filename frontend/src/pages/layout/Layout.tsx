@@ -5,10 +5,22 @@ import { CopyRegular } from '@fluentui/react-icons'
 
 import { CosmosDBStatus } from '../../api'
 import Contoso from '../../assets/Contoso.svg'
+import ntg from '../../assets/ntg.svg'
+
 import { HistoryButton, ShareButton } from '../../components/common/Button'
 import { AppStateContext } from '../../state/AppProvider'
 
 import styles from './Layout.module.css'
+import IndexList from '../../components/IndexList/IndexList'
+import TextArea from '../../components/common/TextArea'
+import Label from '../../components/common/Label'
+
+const splitStringToArray = (input: string | undefined): string[] => {
+  if (input) {
+    return input.split(',').map(item => item.trim());
+  }
+  return input ? [input] : [];
+};
 
 const Layout = () => {
   const [isSharePanelOpen, setIsSharePanelOpen] = useState<boolean>(false)
@@ -20,6 +32,10 @@ const Layout = () => {
   const [logo, setLogo] = useState('')
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
+  const selectionTitle='Data Source'
+  const indexItems = splitStringToArray(ui?.index_items);
+  const sysMessageTitle='System Prompt'
+  const [sysMessage, setSysMessage] = useState<string>(ui?.system_message || '');
 
   const handleShareClick = () => {
     setIsSharePanelOpen(true)
@@ -42,7 +58,7 @@ const Layout = () => {
 
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
-      setLogo(ui?.logo || Contoso)
+      setLogo(ui?.logo || ntg)
     }
   }, [appStateContext?.state.isLoading])
 
@@ -83,6 +99,12 @@ const Layout = () => {
               <h1 className={styles.headerTitle}>{ui?.title}</h1>
             </Link>
           </Stack>
+          <Stack horizontal verticalAlign="center">
+            <Label text={selectionTitle} htmlFor="indexItems" />
+            <IndexList items={indexItems} />
+            <Label text={sysMessageTitle} htmlFor="sysMessage" />                             
+            <TextArea value={sysMessage} onChange={setSysMessage} rows={4} cols={50} />            
+          </Stack>
           <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
             {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
               <HistoryButton
@@ -92,7 +114,12 @@ const Layout = () => {
             )}
             {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
           </Stack>
+          
         </Stack>
+        <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
+            
+        </Stack>
+        
       </header>
       <Outlet />
       <Dialog

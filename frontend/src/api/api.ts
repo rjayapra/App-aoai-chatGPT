@@ -9,7 +9,9 @@ export async function conversationApi(options: ConversationRequest, abortSignal:
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      messages: options.messages
+      messages: options.messages,
+      index: options.index,
+      sysmessage: options.sysmessage
     }),
     signal: abortSignal
   })

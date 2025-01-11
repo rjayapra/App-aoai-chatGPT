@@ -370,6 +370,7 @@ The interface allows for easy adaptation of the UI by modifying certain elements
 |UI_CHAT_LOGO|No|| Logo (chat window). Defaults to Contoso logo. Configure the URL to your logo image to modify.
 |UI_CHAT_TITLE|No|Start chatting| Title (chat window)
 |UI_CHAT_DESCRIPTION|No|This chatbot is configured to answer your questions| Description (chat window)
+|UI_CHAT_WELCOME_MESSAGE|No|Welcome to Chat App| Welcome (chat window)
 |UI_FAVICON|No|| Defaults to Contoso favicon. Configure the URL to your favicon to modify.
 |UI_SHOW_SHARE_BUTTON|No|True|Share button (right-top)
 |UI_SHOW_CHAT_HISTORY_BUTTON|No|True|Show chat history button (right-top)

@@ -86,6 +86,8 @@ export type ChatResponse = {
 
 export type ConversationRequest = {
   messages: ChatMessage[]
+  index: string
+  sysmessage: string
 }
 
 export type UserInfo = {
@@ -127,10 +129,13 @@ export type UI = {
   title: string
   chat_title: string
   chat_description: string
+  chat_welcome_message: string
   logo?: string
   chat_logo?: string
   show_share_button?: boolean
   show_chat_history_button?: boolean
+  index_items?: string
+  system_message?: string
 }
 
 export type FrontendSettings = {

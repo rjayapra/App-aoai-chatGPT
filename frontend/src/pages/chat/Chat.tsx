@@ -13,6 +13,13 @@ import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 import styles from './Chat.module.css'
 import Contoso from '../../assets/Contoso.svg'
+import ntg from '../../assets/ntg.svg'
+import ntg_img from '../../assets/ntg.png'
+import IndexList from '../../components/IndexList/IndexList'
+import TextArea from '../../components/common/TextArea'
+import Label from '../../components/common/Label'
+
+
 import { XSSAllowTags } from '../../constants/sanatizeAllowables'
 
 import {
@@ -44,6 +51,12 @@ const enum messageStatus {
   Processing = 'Processing',
   Done = 'Done'
 }
+const splitStringToArray = (input: string | undefined): string[] => {
+  if (input) {
+    return input.split(',').map(item => item.trim());
+  }
+  return input ? [input] : [];
+};
 
 const Chat = () => {
   const appStateContext = useContext(AppStateContext)
@@ -65,7 +78,10 @@ const Chat = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMessage | null>()
   const [logo, setLogo] = useState('')
   const [answerId, setAnswerId] = useState<string>('')
-
+  const selectionTitle='Data Source'
+  const indexItems = splitStringToArray(ui?.index_items);
+  const sysMessageTitle='System Prompt'
+  const [sysMessage, setSysMessage] = useState<string>(ui?.system_message || '');
   const errorDialogContentProps = {
     type: DialogType.close,
     title: errorMsg?.title,
@@ -82,6 +98,8 @@ const Chat = () => {
 
   const [ASSISTANT, TOOL, ERROR] = ['assistant', 'tool', 'error']
   const NO_CONTENT_ERROR = 'No content in messages object.'
+
+  const selectionItems = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
 
   useEffect(() => {
     if (
@@ -108,7 +126,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
-      setLogo(ui?.chat_logo || ui?.logo || Contoso)
+      setLogo(ui?.chat_logo || ui?.logo || ntg)
     }
   }, [appStateContext?.state.isLoading])
 
@@ -218,9 +236,16 @@ const Chat = () => {
 
     appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: conversation })
     setMessages(conversation.messages)
-
+    //Get the value of the selectedIndex from the dropdown from localstorage
+    const selectedIndex = localStorage.getItem('selectedItem');
+    const sysMessage = localStorage.getItem('systemMessage');
+    
+    console.log(selectedIndex);
+    console.log(sysMessage);
     const request: ConversationRequest = {
-      messages: [...conversation.messages.filter(answer => answer.role !== ERROR)]
+      messages: [...conversation.messages.filter(answer => answer.role !== ERROR)],
+      index: selectedIndex || 'QSPs',
+      sysmessage: sysMessage || 'You are an informative AI assistant'      
     }
 
     let result = {} as ChatResponse
@@ -320,11 +345,14 @@ const Chat = () => {
       content: questionContent as string,
       date: new Date().toISOString()
     }
-
+    const selectedIndex = localStorage.getItem('selectedKey');
+    const sysMessage = localStorage.getItem('systemMessage');
+    
     let request: ConversationRequest
     let conversation
     if (conversationId) {
       conversation = appStateContext?.state?.chatHistory?.find(conv => conv.id === conversationId)
+
       if (!conversation) {
         console.error('Conversation not found.')
         setIsLoading(false)
@@ -334,12 +362,17 @@ const Chat = () => {
       } else {
         conversation.messages.push(userMessage)
         request = {
-          messages: [...conversation.messages.filter(answer => answer.role !== ERROR)]
+          messages: [...conversation.messages.filter(answer => answer.role !== ERROR)],
+          index: selectedIndex || 'QSP',
+          sysmessage: sysMessage || 'You are an informative AI assistant'      
+        
         }
       }
     } else {
       request = {
-        messages: [userMessage].filter(answer => answer.role !== ERROR)
+        messages: [userMessage].filter(answer => answer.role !== ERROR),
+        index: selectedIndex || 'QSP',
+        sysmessage: sysMessage || 'You are an informative AI assistant'            
       }
       setMessages(request.messages)
     }
@@ -759,6 +792,25 @@ const Chat = () => {
 
   return (
     <div className={styles.container} role="main">
+      <Stack className={styles.inputPanelContainer} tabIndex={0} role="tabpanel" aria-label="User Input Panel">
+              <Stack
+                aria-label="User Input Panel Header Container"
+                horizontal
+                className={styles.inputPanelHeaderContainer}
+                horizontalAlign="space-between"
+                verticalAlign="center">
+                <span aria-label="User Input" className={styles.inputPanelTitle}>
+                  User Inputs
+                </span>
+              </Stack>
+              <div tabIndex={0}>
+              <Label text={selectionTitle} htmlFor="indexItems" />
+              <IndexList items={indexItems} />
+              <Label text={sysMessageTitle} htmlFor="sysMessage" />                             
+              <TextArea value={sysMessage} onChange={setSysMessage} rows={5} cols={30} />   
+              </div>
+      </Stack>
+
       {showAuthMessage ? (
         <Stack className={styles.chatEmptyState}>
           <ShieldLockRegular
@@ -791,7 +843,8 @@ const Chat = () => {
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
               <Stack className={styles.chatEmptyState}>
-                <img src={logo} className={styles.chatIcon} aria-hidden="true" />
+                <h1 className={styles.chatEmptyStateWelcome}>{ui?.chat_welcome_message}</h1>
+                <img src={logo} className={styles.chatImage} aria-hidden="true" />
                 <h1 className={styles.chatEmptyStateTitle}>{ui?.chat_title}</h1>
                 <h2 className={styles.chatEmptyStateSubtitle}>{ui?.chat_description}</h2>
               </Stack>
@@ -929,7 +982,7 @@ const Chat = () => {
                   hidden={hideErrorDialog}
                   onDismiss={handleErrorDialogClose}
                   dialogContentProps={errorDialogContentProps}
-                  modalProps={modalProps}></Dialog>
+                  modalProps={modalProps}></Dialog>                
               </Stack>
               <QuestionInput
                 clearOnSend
@@ -944,6 +997,7 @@ const Chat = () => {
                   appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
                 }
               />
+              
             </Stack>
           </div>
           {/* Citation Panel */}

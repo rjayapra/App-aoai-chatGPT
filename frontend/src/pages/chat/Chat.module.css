@@ -48,6 +48,17 @@
   margin-top: 36px;
   margin-bottom: 0px;
 }
+.chatEmptyStateWelcome {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  display: flex;
+  align-items: flex-end;
+  text-align: center;
+  margin-top: 36px;
+  margin-bottom: 50px;
+  letter-spacing: -0.01em;
+}
 
 .chatEmptyStateSubtitle {
   margin-top: 20px;
@@ -64,6 +75,12 @@
 .chatIcon {
   height: 62px;
   width: auto;
+}
+
+.chatImage {
+  height: 100px;
+  width: 120px;
+  border-radius: 8px;
 }
 
 .chatMessageStream {
